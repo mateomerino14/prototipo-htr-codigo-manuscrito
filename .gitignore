@@ -1,0 +1,25 @@
+# Entorno
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Datos de estudiantes: nunca se suben al repositorio
+datos/imagenes/*
+datos/referencias/*
+!datos/imagenes/.gitkeep
+!datos/referencias/.gitkeep
+
+# Resultados generados
+resultados/
+
+# Credenciales
+.env
+*.json.key
+credenciales*.json
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
