@@ -1,0 +1,25 @@
+id,lenguaje,categoria,archivo,descripcion
+J01,java,secuencial,java/J01_suma.java,Lectura de dos enteros y su suma
+J02,java,condicional,java/J02_par_impar.java,Determina si un numero es par o impar
+J03,java,condicional,java/J03_mayor_tres.java,Mayor de tres numeros
+J04,java,bucle,java/J04_tabla_multiplicar.java,Tabla de multiplicar con for
+J05,java,bucle,java/J05_factorial.java,Factorial con while
+J06,java,arreglo,java/J06_promedio_arreglo.java,Promedio de un arreglo
+J07,java,cadena,java/J07_contar_vocales.java,Cuenta las vocales de una cadena
+J08,java,matriz,java/J08_suma_matriz.java,Suma de los elementos de una matriz
+J09,java,recursion,java/J09_fibonacci.java,Fibonacci recursivo
+J10,java,busqueda,java/J10_busqueda_lineal.java,Busqueda lineal en un arreglo
+J11,java,ordenamiento,java/J11_burbuja.java,Ordenamiento burbuja
+J12,java,clase,java/J12_clase_rectangulo.java,Clase con atributos y metodo
+P01,python,secuencial,python/P01_suma.py,Lectura de dos enteros y su suma
+P02,python,condicional,python/P02_par_impar.py,Determina si un numero es par o impar
+P03,python,condicional,python/P03_mayor_tres.py,Mayor de tres numeros
+P04,python,bucle,python/P04_tabla_multiplicar.py,Tabla de multiplicar con for
+P05,python,bucle,python/P05_factorial.py,Factorial con while
+P06,python,arreglo,python/P06_promedio_lista.py,Promedio de una lista
+P07,python,cadena,python/P07_contar_vocales.py,Cuenta las vocales de una cadena
+P08,python,matriz,python/P08_suma_matriz.py,Suma de los elementos de una matriz
+P09,python,recursion,python/P09_fibonacci.py,Fibonacci recursivo
+P10,python,busqueda,python/P10_busqueda_lineal.py,Busqueda lineal en una lista
+P11,python,ordenamiento,python/P11_burbuja.py,Ordenamiento burbuja
+P12,python,clase,python/P12_clase_rectangulo.py,Clase con atributos y metodo
