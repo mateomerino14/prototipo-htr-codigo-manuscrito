@@ -2,3 +2,6 @@ numpy
 opencv-python
 Pillow
 pytest
+
+# Tesseract (ademas requiere el programa instalado en el sistema)
+pytesseract
