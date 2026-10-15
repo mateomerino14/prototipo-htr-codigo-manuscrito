@@ -16,6 +16,8 @@ import time
 from datetime import datetime
 
 from piloto import config, reporte
+from piloto.analisis.errores import analizar
+from piloto.analisis.informe import generar_informe
 from piloto.metricas import cer, cer_sin_espacios, wer
 from piloto.motores import MOTORES
 from piloto.muestras import cargar_muestras
@@ -37,10 +39,15 @@ def preparar_corrida(conjunto):
 
 
 def evaluar_motor(motor, muestras, carpeta_transcripciones):
-    """Transcribe todas las muestras con un motor y calcula sus metricas."""
+    """Transcribe todas las muestras con un motor y calcula sus metricas.
+
+    Devuelve las metricas por muestra, el detalle de cada error de caracter y
+    la cantidad de muestras que fallaron.
+    """
     carpeta_transcripciones.mkdir(parents=True, exist_ok=True)
     filas = []
-    errores = 0
+    detalle_errores = []
+    fallidas = 0
 
     for muestra in muestras:
         inicio = time.perf_counter()
@@ -49,7 +56,7 @@ def evaluar_motor(motor, muestras, carpeta_transcripciones):
         except Exception as error:
             # Un fallo en una imagen no debe detener el resto del piloto
             print(f"    error en {muestra.imagen.name}: {error}")
-            errores += 1
+            fallidas += 1
             continue
         segundos = time.perf_counter() - inicio
 
@@ -62,8 +69,15 @@ def evaluar_motor(motor, muestras, carpeta_transcripciones):
             "wer": wer(muestra.referencia, texto),
             "segundos": segundos,
         })
+        for error_caracter in analizar(muestra.referencia, texto):
+            detalle_errores.append({
+                "herramienta": motor.nombre,
+                "muestra": muestra.id,
+                "lenguaje": muestra.lenguaje,
+                **error_caracter,
+            })
 
-    return filas, errores
+    return filas, detalle_errores, fallidas
 
 
 def guardar_registro(carpeta, args, muestras, resumen):
@@ -98,6 +112,7 @@ def main():
 
     corrida = preparar_corrida(args.conjunto)
     detalle = []
+    errores = []
     resumen = []
 
     for clave in args.motores:
@@ -109,14 +124,17 @@ def main():
             continue
 
         print(f"[{motor.nombre}] procesando {len(muestras)} muestras...")
-        filas, errores = evaluar_motor(motor, muestras, corrida / "transcripciones" / clave)
+        filas, errores_motor, fallidas = evaluar_motor(motor, muestras, corrida / "transcripciones" / clave)
         detalle.extend(filas)
-        resumen.append(reporte.resumir(motor.nombre, filas, errores))
+        errores.extend(errores_motor)
+        resumen.append(reporte.resumir(motor.nombre, filas, fallidas))
 
     reporte.guardar_csv(corrida / "tablas" / "resultados_por_muestra.csv", detalle)
     reporte.guardar_csv(corrida / "tablas" / "resumen_herramientas.csv", resumen)
+    reporte.guardar_csv(corrida / "tablas" / "errores.csv", errores)
     guardar_registro(corrida, args, muestras, resumen)
     reporte.imprimir_tabla(resumen)
+    generar_informe(corrida)
     print(f"\nResultados guardados en {corrida}")
 
 

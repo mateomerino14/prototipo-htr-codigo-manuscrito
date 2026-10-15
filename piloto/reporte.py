@@ -3,8 +3,8 @@
 import csv
 
 
-def resumir(nombre, filas, errores):
-    """Promedia las metricas de una herramienta sobre todas sus imagenes."""
+def resumir(nombre, filas, fallidas):
+    """Promedia las metricas de una herramienta sobre todas sus muestras."""
     cantidad = len(filas)
 
     def promedio(clave):
@@ -12,7 +12,7 @@ def resumir(nombre, filas, errores):
 
     return {
         "herramienta": nombre,
-        "estado": "ok" if not errores else f"{errores} muestras con error",
+        "estado": "ok" if not fallidas else f"{fallidas} muestras con error",
         "muestras": cantidad,
         "cer": promedio("cer"),
         "cer_sin_espacios": promedio("cer_sin_espacios"),
