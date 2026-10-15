@@ -9,3 +9,7 @@ pytesseract
 # PaddleOCR
 paddlepaddle
 paddleocr
+
+# TrOCR
+torch
+transformers
