@@ -1,0 +1,88 @@
+"""Exporta las tablas del analisis a LaTeX con el formato APA del documento.
+
+Cada tabla queda en su propio .tex para incluirla con \\input{...}. El numero
+de tabla se deja como "X" porque depende del orden final en el documento.
+"""
+
+ESCAPES = {
+    "\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#",
+    "_": r"\_", "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}",
+}
+
+ENCABEZADOS = {
+    "herramienta": "Herramienta", "n": "n", "media": "Media", "mediana": "Mediana",
+    "desv_est": "Desv. est.", "minimo": "Mín.", "maximo": "Máx.",
+    "esperado": "Esperado", "obtenido": "Obtenido", "veces": "Veces",
+    "sustitucion": "Sustitución", "eliminacion": "Eliminación", "insercion": "Inserción",
+}
+
+TABLAS = {
+    "descriptivas_cer": "Estadísticas descriptivas del CER por herramienta",
+    "descriptivas_cer_sin_espacios": "Estadísticas descriptivas del CER sin espacios por herramienta",
+    "descriptivas_wer": "Estadísticas descriptivas del WER por herramienta",
+    "tiempo_por_muestra": "Tiempo de transcripción por muestra (segundos)",
+    "cer_por_lenguaje": "CER promedio por herramienta y lenguaje",
+    "cer_por_captura": "CER promedio por herramienta y tipo de captura",
+    "cer_por_categoria": "CER promedio por herramienta y categoría de ejercicio",
+    "tipos_de_error": "Cantidad de errores por tipo de operación",
+    "confusiones_frecuentes": "Sustituciones de caracteres más frecuentes por herramienta",
+}
+
+
+def escapar(texto):
+    texto = str(texto)
+    # Se marcan espacios y saltos para que se vean en la tabla
+    if texto == " ":
+        return r"\textvisiblespace"
+    if texto == "\n":
+        return r"$\hookleftarrow$"
+    return "".join(ESCAPES.get(caracter, caracter) for caracter in texto)
+
+
+def _celda(valor):
+    if isinstance(valor, float):
+        return f"{valor:.3f}"
+    return escapar(valor)
+
+
+def tabla_a_latex(tabla, titulo, nota="Elaboración propia."):
+    columnas = list(tabla.columns)
+    formato = "|" + "|".join("l" if i == 0 else "c" for i in range(len(columnas))) + "|"
+    encabezado = " & ".join(rf"\textbf{{{escapar(ENCABEZADOS.get(c, c))}}}" for c in columnas)
+
+    lineas = [
+        r"\begin{flushleft}",
+        r"\textbf{Tabla X}\\",
+        rf"\textit{{{titulo}}}",
+        r"\end{flushleft}",
+        "",
+        r"\begin{center}",
+        r"\small",
+        r"\renewcommand{\arraystretch}{1.3}",
+        rf"\begin{{tabular}}{{{formato}}}",
+        r"\hline",
+        encabezado + r" \\",
+        r"\hline",
+    ]
+    for fila in tabla.itertuples(index=False):
+        lineas.append(" & ".join(_celda(valor) for valor in fila) + r" \\")
+        lineas.append(r"\hline")
+    lineas += [
+        r"\end{tabular}",
+        r"\end{center}",
+        "",
+        r"\begin{flushleft}",
+        rf"\footnotesize \textit{{Nota.}} {nota}",
+        r"\end{flushleft}",
+    ]
+    return "\n".join(lineas) + "\n"
+
+
+def exportar_todas(tablas, carpeta):
+    for nombre, titulo in TABLAS.items():
+        if nombre not in tablas:
+            continue
+        tabla = tablas[nombre]
+        if nombre == "confusiones_frecuentes":
+            tabla = tabla.groupby("herramienta").head(5)
+        (carpeta / f"{nombre}.tex").write_text(tabla_a_latex(tabla, titulo), encoding="utf-8")
