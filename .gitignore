@@ -5,10 +5,8 @@ __pycache__/
 *.pyc
 
 # Datos de estudiantes: nunca se suben al repositorio
-datos/imagenes/*
-datos/referencias/*
-!datos/imagenes/.gitkeep
-!datos/referencias/.gitkeep
+datos/*/*
+!datos/*/.gitkeep
 
 # Resultados generados
 resultados/

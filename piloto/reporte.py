@@ -2,9 +2,6 @@
 
 import csv
 
-COLUMNAS_DETALLE = ["herramienta", "imagen", "cer", "cer_sin_espacios", "wer", "segundos"]
-COLUMNAS_RESUMEN = ["herramienta", "estado", "imagenes", "cer", "cer_sin_espacios", "wer", "segundos"]
-
 
 def resumir(nombre, filas, errores):
     """Promedia las metricas de una herramienta sobre todas sus imagenes."""
@@ -15,8 +12,8 @@ def resumir(nombre, filas, errores):
 
     return {
         "herramienta": nombre,
-        "estado": "ok" if not errores else f"{errores} imagenes con error",
-        "imagenes": cantidad,
+        "estado": "ok" if not errores else f"{errores} muestras con error",
+        "muestras": cantidad,
         "cer": promedio("cer"),
         "cer_sin_espacios": promedio("cer_sin_espacios"),
         "wer": promedio("wer"),
@@ -24,9 +21,17 @@ def resumir(nombre, filas, errores):
     }
 
 
-def guardar_csv(ruta, columnas, filas):
+def _columnas(filas):
+    # Union de claves respetando el orden de aparicion
+    columnas = {}
+    for fila in filas:
+        columnas.update(dict.fromkeys(fila))
+    return list(columnas)
+
+
+def guardar_csv(ruta, filas):
     with open(ruta, "w", newline="", encoding="utf-8") as archivo:
-        escritor = csv.DictWriter(archivo, fieldnames=columnas)
+        escritor = csv.DictWriter(archivo, fieldnames=_columnas(filas))
         escritor.writeheader()
         for fila in filas:
             escritor.writerow({
