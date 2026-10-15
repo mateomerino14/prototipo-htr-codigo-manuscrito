@@ -3,6 +3,10 @@ opencv-python
 Pillow
 pytest
 
+# Analisis
+pandas
+matplotlib
+
 # Tesseract (ademas requiere el programa instalado en el sistema)
 pytesseract
 
