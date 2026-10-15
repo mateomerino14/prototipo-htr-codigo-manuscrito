@@ -5,3 +5,7 @@ pytest
 
 # Tesseract (ademas requiere el programa instalado en el sistema)
 pytesseract
+
+# PaddleOCR
+paddlepaddle
+paddleocr
