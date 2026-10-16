@@ -1,11 +1,4 @@
-"""Genera el PDF con los ejercicios que copian a mano los escritores del piloto.
-
-Uso:
-    python -m piloto.hojas
-
-La primera pagina tiene las instrucciones y una hoja de control para marcar
-las capturas hechas; despues van los ejercicios, dos por pagina.
-"""
+# Uso: python -m piloto.hojas
 
 import matplotlib
 

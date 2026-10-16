@@ -1,9 +1,4 @@
-"""Regenera el informe de una corrida ya hecha.
-
-Uso:
-    python -m piloto.analisis                       # la corrida mas reciente
-    python -m piloto.analisis resultados/piloto/20261020_101500
-"""
+# Uso: python -m piloto.analisis [carpeta de la corrida]
 
 import sys
 from pathlib import Path

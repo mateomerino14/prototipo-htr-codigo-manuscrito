@@ -1,14 +1,11 @@
-"""Exporta los resultados del piloto a CSV y los muestra en consola."""
-
 import csv
 
 
 def resumir(nombre, filas, fallidas):
-    """Promedia las metricas de una herramienta sobre todas sus muestras."""
     cantidad = len(filas)
 
     def promedio(clave):
-        # Se ignoran las muestras donde la metrica no aplica (por ejemplo, sin reservadas)
+        # Se ignoran las muestras donde la metrica no aplica
         valores = [fila[clave] for fila in filas if fila.get(clave) is not None]
         return sum(valores) / len(valores) if valores else float("nan")
 

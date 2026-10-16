@@ -1,13 +1,4 @@
-"""Prueba piloto de las herramientas HTR candidatas.
-
-Uso:
-    python -m piloto                              # conjunto datos/piloto
-    python -m piloto --motores tesseract trocr
-    python -m piloto --conjunto evaluacion
-
-Cada ejecucion se guarda en su propia carpeta resultados/<conjunto>/<fecha_hora>/
-para no sobrescribir corridas anteriores.
-"""
+# Uso: python -m piloto [--conjunto evaluacion] [--motores tesseract trocr]
 
 import argparse
 import json
@@ -49,11 +40,6 @@ def preparar_corrida(conjunto):
 
 
 def evaluar_motor(motor, muestras, carpeta_transcripciones):
-    """Transcribe todas las muestras con un motor y calcula sus metricas.
-
-    Ademas de las metricas por muestra, guarda el detalle de cada error de
-    caracter y de cada palabra reservada, que son la base del analisis.
-    """
     carpeta_transcripciones.mkdir(parents=True, exist_ok=True)
     resultado = ResultadoMotor()
 
@@ -89,7 +75,6 @@ def evaluar_motor(motor, muestras, carpeta_transcripciones):
 
 
 def guardar_registro(carpeta, args, muestras, resumen):
-    """Deja constancia de como se hizo la corrida, para poder repetirla."""
     registro = {
         "fecha": datetime.now().isoformat(timespec="seconds"),
         "conjunto": args.conjunto,

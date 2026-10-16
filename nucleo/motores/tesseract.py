@@ -4,9 +4,8 @@ import shutil
 from nucleo.motores.base import MotorHTR
 
 
+# Linea base: pensado para texto impreso, no manuscrito
 class Tesseract(MotorHTR):
-    """Linea base de comparacion. Esta pensado para texto impreso, no manuscrito."""
-
     nombre = "Tesseract"
     CONFIGURACION = "--psm 6 -c preserve_interword_spaces=1"
 

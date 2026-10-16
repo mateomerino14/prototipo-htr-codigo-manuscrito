@@ -1,9 +1,3 @@
-"""Verifica que el banco de ejercicios sea codigo valido.
-
-Si una referencia tuviera un error de sintaxis, las metricas castigarian a
-las herramientas por diferencias que no son suyas.
-"""
-
 import csv
 import shutil
 import subprocess
@@ -11,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+# Una referencia con errores castigaria a las herramientas por algo que no es suyo
 CARPETA = Path(__file__).resolve().parents[1] / "ejercicios"
 
 

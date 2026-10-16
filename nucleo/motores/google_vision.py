@@ -3,9 +3,8 @@ import os
 from nucleo.motores.base import MotorHTR
 
 
+# Requiere GOOGLE_APPLICATION_CREDENTIALS con la ruta de la clave JSON
 class GoogleVision(MotorHTR):
-    """Requiere GOOGLE_APPLICATION_CREDENTIALS apuntando a la clave JSON."""
-
     nombre = "Google Cloud Vision"
 
     def disponible(self):

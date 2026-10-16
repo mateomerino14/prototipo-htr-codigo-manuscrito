@@ -1,10 +1,3 @@
-"""Graficas del analisis, pensadas para el documento impreso.
-
-Cada grafica se guarda en PNG (300 dpi) y en PDF (vectorial, para LaTeX).
-Cada herramienta tiene siempre el mismo color y la misma trama, asi se
-reconoce igual en todas las figuras y tambien en impresion en blanco y negro.
-"""
-
 import matplotlib
 
 matplotlib.use("Agg")
@@ -90,7 +83,6 @@ def _herramientas(detalle):
 
 
 def distribucion_cer(detalle, carpeta):
-    """Diagrama de caja del CER: muestra la dispersion, no solo el promedio."""
     herramientas = _herramientas(detalle)
     datos = [detalle.loc[detalle["herramienta"] == h, "cer"] for h in herramientas]
 
@@ -122,7 +114,6 @@ def _barras_con_etiqueta(eje, posiciones, valores, ancho, color, trama, formato=
 
 
 def impacto_indentacion(detalle, carpeta):
-    """CER con y sin espacios: la diferencia es lo que se pierde por indentacion."""
     medias = detalle.groupby("herramienta")[["cer", "cer_sin_espacios"]].mean()
     herramientas = [h for h in _herramientas(detalle) if h in medias.index]
     medias = medias.loc[herramientas]
@@ -141,7 +132,6 @@ def impacto_indentacion(detalle, carpeta):
 
 
 def barras_por_factor(tabla, factor, carpeta, nombre, titulo, etiqueta_y, limite_y=None):
-    """Barras agrupadas: una serie por herramienta, un grupo por valor del factor."""
     herramientas = [h for h in ESTILO_HERRAMIENTA if h in tabla.index] + \
                    [h for h in tabla.index if h not in ESTILO_HERRAMIENTA]
     valores = list(tabla.columns)
@@ -172,7 +162,6 @@ def cer_por_factor(tabla, factor, carpeta):
 
 
 def mapa_calor(tabla, titulo, nombre, carpeta, formato="{:.2f}", etiqueta_barra=""):
-    """Mapa de calor de una sola tonalidad: mas oscuro es mayor valor."""
     from matplotlib.colors import LinearSegmentedColormap
 
     mapa = LinearSegmentedColormap.from_list("secuencial", RAMPA_SECUENCIAL)
@@ -218,7 +207,6 @@ def tiempo_por_herramienta(detalle, carpeta):
 
 
 def _barras_horizontales(herramienta, etiquetas, valores, titulo, etiqueta_x, carpeta, nombre):
-    """Ranking de una herramienta: la barra mas larga queda arriba."""
     color, trama = _estilo(herramienta)
     figura, eje = plt.subplots(figsize=(5.5, 0.32 * len(etiquetas) + 1.2))
     barras = eje.barh(etiquetas[::-1], valores[::-1], color=color, hatch=trama,
@@ -235,7 +223,6 @@ def _nombre_archivo(herramienta):
 
 
 def confusiones(tabla, carpeta, limite=10):
-    """Una figura por herramienta con sus sustituciones mas frecuentes."""
     def visible(caracter):
         return {" ": "␣", "\n": "↵"}.get(caracter, caracter)
 
@@ -248,7 +235,6 @@ def confusiones(tabla, carpeta, limite=10):
 
 
 def reservadas_falladas(tabla, carpeta):
-    """Palabras reservadas mal reconocidas con mas frecuencia, por herramienta."""
     for herramienta, grupo in tabla.groupby("herramienta"):
         etiquetas = [f"{p}  ({f}/{a})" for p, f, a in zip(grupo["palabra"], grupo["fallos"], grupo["apariciones"])]
         _barras_horizontales(herramienta, etiquetas, list(grupo["fallos"]),
@@ -258,7 +244,6 @@ def reservadas_falladas(tabla, carpeta):
 
 
 def generar_todas(detalle, tablas, carpeta):
-    """Genera todas las graficas que los datos permitan."""
     if detalle.empty:
         return
 

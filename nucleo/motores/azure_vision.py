@@ -3,9 +3,8 @@ import os
 from nucleo.motores.base import MotorHTR
 
 
+# Requiere AZURE_VISION_ENDPOINT y AZURE_VISION_KEY
 class AzureVision(MotorHTR):
-    """Requiere AZURE_VISION_ENDPOINT y AZURE_VISION_KEY del recurso en Azure."""
-
     nombre = "Azure AI Vision"
 
     def disponible(self):

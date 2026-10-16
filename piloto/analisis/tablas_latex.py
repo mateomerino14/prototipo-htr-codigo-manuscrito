@@ -1,9 +1,3 @@
-"""Exporta las tablas del analisis a LaTeX con el formato APA del documento.
-
-Cada tabla queda en su propio .tex para incluirla con \\input{...}. El numero
-de tabla se deja como "X" porque depende del orden final en el documento.
-"""
-
 ESCAPES = {
     "\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#",
     "_": r"\_", "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}",
@@ -49,6 +43,7 @@ def _celda(valor):
     return escapar(valor)
 
 
+# El numero queda como X porque depende del orden final del documento
 def tabla_a_latex(tabla, titulo, nota="Elaboración propia."):
     columnas = list(tabla.columns)
     formato = "|" + "|".join("l" if i == 0 else "c" for i in range(len(columnas))) + "|"
@@ -83,7 +78,6 @@ def tabla_a_latex(tabla, titulo, nota="Elaboración propia."):
 
 
 def _unir_intervalo(tabla):
-    """En el documento el IC ocupa una sola columna: [inferior; superior]."""
     if not {"ic95_inf", "ic95_sup"} <= set(tabla.columns):
         return tabla
     tabla = tabla.copy()

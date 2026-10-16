@@ -1,9 +1,3 @@
-"""Genera tablas, tablas LaTeX y graficas a partir de una corrida guardada.
-
-Trabaja solo con los CSV de la corrida, asi el analisis se puede repetir o
-ajustar sin volver a transcribir las imagenes.
-"""
-
 import pandas as pd
 
 from piloto.analisis import graficas, tablas_latex
@@ -19,6 +13,7 @@ def _leer_csv(ruta):
         return pd.DataFrame()
 
 
+# Solo lee los CSV de la corrida, asi el analisis se repite sin volver a transcribir
 def generar_informe(corrida):
     carpeta_tablas = corrida / "tablas"
     detalle = _leer_csv(carpeta_tablas / "resultados_por_muestra.csv")
@@ -29,7 +24,7 @@ def generar_informe(corrida):
         print("La corrida no tiene resultados para analizar.")
         return
 
-    # Los caracteres esperados/obtenidos pueden ser espacios; no deben leerse como vacios
+    # Un espacio esperado u obtenido no debe leerse como celda vacia
     for columna in ("esperado", "obtenido"):
         if columna in errores:
             errores[columna] = errores[columna].fillna("").astype(str)

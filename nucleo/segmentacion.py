@@ -1,9 +1,3 @@
-"""Separa una imagen de codigo manuscrito en sus lineas de texto.
-
-Se usa el perfil de proyeccion horizontal: las filas con tinta forman bandas
-y los espacios en blanco entre ellas marcan el corte entre lineas.
-"""
-
 import cv2
 import numpy as np
 from PIL import Image
@@ -50,8 +44,8 @@ def _unir_bandas_cercanas(bandas):
     return [b for b in unidas if b[1] - b[0] >= ALTO_MINIMO]
 
 
+# Corta la imagen en lineas con el perfil de proyeccion horizontal
 def segmentar_lineas(ruta_imagen):
-    """Devuelve una imagen PIL por cada linea, de arriba hacia abajo."""
     imagen = cv2.imread(str(ruta_imagen))
     if imagen is None:
         raise ValueError(f"No se pudo abrir la imagen: {ruta_imagen}")

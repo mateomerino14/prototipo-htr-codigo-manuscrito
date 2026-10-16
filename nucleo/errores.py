@@ -1,10 +1,3 @@
-"""Analisis de errores caracter por caracter.
-
-Alinea la referencia con la transcripcion (misma tabla de Levenshtein que el
-CER) y clasifica cada diferencia segun el tipo de caracter afectado. Con esto
-se puede responder que se equivoca cada herramienta, no solo cuanto.
-"""
-
 from nucleo.metricas import normalizar
 
 CORRECTO = "correcto"
@@ -39,7 +32,6 @@ def clasificar_caracter(caracter):
 
 
 def alinear(referencia, hipotesis):
-    """Devuelve la lista de operaciones (tipo, esperado, obtenido) de menor costo."""
     n, m = len(referencia), len(hipotesis)
     tabla = [[0] * (m + 1) for _ in range(n + 1)]
     for i in range(n + 1):
@@ -71,12 +63,8 @@ def alinear(referencia, hipotesis):
     return operaciones
 
 
+# Los espacios al inicio de linea se cuentan como indentacion, no como espacio
 def analizar(referencia, hipotesis):
-    """Lista de errores, cada uno con su tipo y la clase de caracter afectada.
-
-    Los espacios al inicio de una linea de la referencia se cuentan como
-    errores de indentacion, separados de los espacios normales.
-    """
     errores = []
     en_sangria = True
 

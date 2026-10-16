@@ -1,5 +1,3 @@
-"""Prueba el informe completo con resultados simulados de varias herramientas."""
-
 import csv
 import random
 
@@ -15,7 +13,6 @@ CONFUSIONES = {"0": "O", "1": "l", ";": ":", "i": "l", "=": "-", "(": "C", "r": 
 
 
 def _ensuciar(texto, probabilidad, azar):
-    """Simula una transcripcion con confusiones tipicas y sin indentacion."""
     salida = []
     for linea in texto.split("\n"):
         if azar.random() < probabilidad:
@@ -34,7 +31,6 @@ def _escribir(ruta, filas):
 
 
 def crear_corrida(carpeta):
-    """Escribe una corrida simulada completa en la carpeta indicada."""
     from nucleo.metricas import cer, cer_sin_espacios, wer
 
     azar = random.Random(7)

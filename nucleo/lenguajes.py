@@ -1,10 +1,3 @@
-"""Palabras reservadas de Java y Python y su tasa de acierto en una transcripcion.
-
-En codigo fuente no todas las palabras pesan igual: si se pierde un "while"
-o un "return" el programa cambia de sentido. Por eso se mide aparte cuantas
-palabras reservadas de la referencia quedaron exactamente iguales.
-"""
-
 import keyword
 import re
 
@@ -30,16 +23,10 @@ PATRON_IDENTIFICADOR = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 def tokenizar(texto):
-    """Palabras del codigo (identificadores y reservadas), sin simbolos."""
     return PATRON_IDENTIFICADOR.findall(normalizar(texto))
 
 
 def detalle_reservadas(referencia, hipotesis, lenguaje):
-    """Una entrada por cada palabra reservada de la referencia.
-
-    Cada entrada indica la palabra, lo que la herramienta obtuvo en su lugar
-    y si coincide exactamente (se distinguen mayusculas, como en el codigo).
-    """
     reservadas = PALABRAS_RESERVADAS.get(lenguaje)
     if not reservadas:
         return []
@@ -50,17 +37,14 @@ def detalle_reservadas(referencia, hipotesis, lenguaje):
             detalle.append({
                 "palabra": esperado,
                 "obtenido": obtenido,
+                # Distingue mayusculas: en codigo Return no es return
                 "correcta": tipo == CORRECTO,
             })
     return detalle
 
 
+# None si no hay reservadas, para no mezclar ese caso en el promedio
 def acierto_reservadas(referencia, hipotesis, lenguaje):
-    """Proporcion de palabras reservadas reconocidas sin error (1 = todas).
-
-    Devuelve None si el lenguaje no se conoce o la referencia no tiene
-    palabras reservadas, para no mezclar esos casos en el promedio.
-    """
     detalle = detalle_reservadas(referencia, hipotesis, lenguaje)
     if not detalle:
         return None

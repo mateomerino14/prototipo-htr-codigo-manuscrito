@@ -2,9 +2,8 @@ from nucleo.motores.base import MotorHTR
 from nucleo.segmentacion import segmentar_lineas
 
 
+# Reconoce una sola linea a la vez, por eso se segmenta antes
 class TrOCR(MotorHTR):
-    """TrOCR reconoce una sola linea a la vez, por eso se segmenta antes."""
-
     nombre = "TrOCR"
     MODELO = "microsoft/trocr-base-handwritten"
     MAX_TOKENS = 128
