@@ -140,7 +140,7 @@ def impacto_indentacion(detalle, carpeta):
     _guardar(figura, carpeta, "impacto_indentacion")
 
 
-def cer_por_factor(tabla, factor, carpeta):
+def barras_por_factor(tabla, factor, carpeta, nombre, titulo, etiqueta_y, limite_y=None):
     """Barras agrupadas: una serie por herramienta, un grupo por valor del factor."""
     herramientas = [h for h in ESTILO_HERRAMIENTA if h in tabla.index] + \
                    [h for h in tabla.index if h not in ESTILO_HERRAMIENTA]
@@ -155,12 +155,20 @@ def cer_por_factor(tabla, factor, carpeta):
         _barras_con_etiqueta(eje, x + desplazamiento, tabla.loc[herramienta, valores], ancho * 0.92, color, trama)
 
     eje.set_xticks(x, [_etiqueta(v) for v in valores])
-    eje.set_ylabel("CER promedio")
-    eje.set_title(f"CER promedio por {_etiqueta(factor)}", pad=24)
+    eje.set_ylabel(etiqueta_y)
+    eje.set_title(titulo, pad=24)
     _leyenda_arriba(eje, herramientas)
-    eje.margins(y=0.12)
+    if limite_y is not None:
+        eje.set_ylim(0, limite_y)
+    else:
+        eje.margins(y=0.12)
     eje.grid(axis="x", visible=False)
-    _guardar(figura, carpeta, f"cer_por_{factor}")
+    _guardar(figura, carpeta, nombre)
+
+
+def cer_por_factor(tabla, factor, carpeta):
+    barras_por_factor(tabla, factor, carpeta, f"cer_por_{factor}",
+                      f"CER promedio por {_etiqueta(factor)}", "CER promedio")
 
 
 def mapa_calor(tabla, titulo, nombre, carpeta, formato="{:.2f}", etiqueta_barra=""):
@@ -209,24 +217,44 @@ def tiempo_por_herramienta(detalle, carpeta):
     _guardar(figura, carpeta, "tiempo_por_herramienta")
 
 
+def _barras_horizontales(herramienta, etiquetas, valores, titulo, etiqueta_x, carpeta, nombre):
+    """Ranking de una herramienta: la barra mas larga queda arriba."""
+    color, trama = _estilo(herramienta)
+    figura, eje = plt.subplots(figsize=(5.5, 0.32 * len(etiquetas) + 1.2))
+    barras = eje.barh(etiquetas[::-1], valores[::-1], color=color, hatch=trama,
+                      edgecolor=SUPERFICIE, height=0.6)
+    eje.bar_label(barras, padding=3, fontsize=8, color=TEXTO)
+    eje.set_xlabel(etiqueta_x)
+    eje.set_title(titulo)
+    eje.grid(axis="y", visible=False)
+    _guardar(figura, carpeta, nombre)
+
+
+def _nombre_archivo(herramienta):
+    return herramienta.lower().replace(" ", "_")
+
+
 def confusiones(tabla, carpeta, limite=10):
     """Una figura por herramienta con sus sustituciones mas frecuentes."""
     def visible(caracter):
         return {" ": "␣", "\n": "↵"}.get(caracter, caracter)
 
     for herramienta, grupo in tabla.groupby("herramienta"):
-        grupo = grupo.head(limite).iloc[::-1]
+        grupo = grupo.head(limite)
         etiquetas = [f"{visible(e)}  →  {visible(o)}" for e, o in zip(grupo["esperado"], grupo["obtenido"])]
-        color, trama = _estilo(herramienta)
+        _barras_horizontales(herramienta, etiquetas, list(grupo["veces"]),
+                             f"Confusiones más frecuentes: {herramienta}", "Veces",
+                             carpeta, f"confusiones_{_nombre_archivo(herramienta)}")
 
-        figura, eje = plt.subplots(figsize=(5.5, 0.32 * len(grupo) + 1.2))
-        barras = eje.barh(etiquetas, grupo["veces"], color=color, hatch=trama, edgecolor=SUPERFICIE, height=0.6)
-        eje.bar_label(barras, padding=3, fontsize=8, color=TEXTO)
-        eje.set_xlabel("Veces")
-        eje.set_title(f"Confusiones más frecuentes: {herramienta}")
-        eje.grid(axis="y", visible=False)
-        nombre = herramienta.lower().replace(" ", "_")
-        _guardar(figura, carpeta, f"confusiones_{nombre}")
+
+def reservadas_falladas(tabla, carpeta):
+    """Palabras reservadas mal reconocidas con mas frecuencia, por herramienta."""
+    for herramienta, grupo in tabla.groupby("herramienta"):
+        etiquetas = [f"{p}  ({f}/{a})" for p, f, a in zip(grupo["palabra"], grupo["fallos"], grupo["apariciones"])]
+        _barras_horizontales(herramienta, etiquetas, list(grupo["fallos"]),
+                             f"Palabras reservadas más falladas: {herramienta}",
+                             "Veces mal reconocida (fallos/apariciones en la etiqueta)",
+                             carpeta, f"reservadas_falladas_{_nombre_archivo(herramienta)}")
 
 
 def generar_todas(detalle, tablas, carpeta):
@@ -255,3 +283,11 @@ def generar_todas(detalle, tablas, carpeta):
 
     if "confusiones_frecuentes" in tablas:
         confusiones(tablas["confusiones_frecuentes"], carpeta)
+
+    if "reservadas_por_lenguaje" in tablas:
+        barras_por_factor(tablas["reservadas_por_lenguaje"].set_index("herramienta"), "lenguaje", carpeta,
+                          "reservadas_por_lenguaje", "Acierto en palabras reservadas por lenguaje",
+                          "Proporción reconocida sin error", limite_y=1.1)
+
+    if "reservadas_mas_falladas" in tablas:
+        reservadas_falladas(tablas["reservadas_mas_falladas"], carpeta)

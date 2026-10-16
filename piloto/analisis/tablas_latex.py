@@ -14,12 +14,16 @@ ENCABEZADOS = {
     "desv_est": "Desv. est.", "minimo": "Mín.", "maximo": "Máx.",
     "esperado": "Esperado", "obtenido": "Obtenido", "veces": "Veces",
     "sustitucion": "Sustitución", "eliminacion": "Eliminación", "insercion": "Inserción",
+    "palabra": "Palabra", "apariciones": "Apariciones", "fallos": "Fallos", "tasa_fallo": "Tasa de fallo",
 }
 
 TABLAS = {
     "descriptivas_cer": "Estadísticas descriptivas del CER por herramienta",
     "descriptivas_cer_sin_espacios": "Estadísticas descriptivas del CER sin espacios por herramienta",
     "descriptivas_wer": "Estadísticas descriptivas del WER por herramienta",
+    "descriptivas_acierto_reservadas": "Estadísticas descriptivas del acierto en palabras reservadas por herramienta",
+    "reservadas_por_lenguaje": "Acierto promedio en palabras reservadas por herramienta y lenguaje",
+    "reservadas_mas_falladas": "Palabras reservadas reconocidas con error con mayor frecuencia",
     "tiempo_por_muestra": "Tiempo de transcripción por muestra (segundos)",
     "cer_por_lenguaje": "CER promedio por herramienta y lenguaje",
     "cer_por_captura": "CER promedio por herramienta y tipo de captura",
@@ -83,6 +87,6 @@ def exportar_todas(tablas, carpeta):
         if nombre not in tablas:
             continue
         tabla = tablas[nombre]
-        if nombre == "confusiones_frecuentes":
+        if nombre in ("confusiones_frecuentes", "reservadas_mas_falladas"):
             tabla = tabla.groupby("herramienta").head(5)
         (carpeta / f"{nombre}.tex").write_text(tabla_a_latex(tabla, titulo), encoding="utf-8")
