@@ -4,7 +4,7 @@ El alcance de la investigacion es descriptivo, por eso aqui solo se resumen
 los datos (media, mediana, dispersion); no se hacen pruebas de hipotesis.
 """
 
-METRICAS = ["cer", "cer_sin_espacios", "wer"]
+METRICAS = ["cer", "cer_sin_espacios", "wer", "acierto_reservadas"]
 AGRUPACIONES = ["lenguaje", "categoria", "captura", "escritor"]
 
 
@@ -48,15 +48,36 @@ def confusiones_frecuentes(errores, limite=15):
     return conteo.groupby("herramienta").head(limite)
 
 
+def reservadas_mas_falladas(reservadas, limite=10):
+    """Palabras reservadas que cada herramienta reconoce mal con mas frecuencia.
+
+    Es la base para decidir que palabras debe priorizar el corrector.
+    """
+    reservadas = reservadas.assign(fallo=~reservadas["correcta"])
+    tabla = (
+        reservadas.groupby(["herramienta", "palabra"])
+        .agg(apariciones=("fallo", "size"), fallos=("fallo", "sum"))
+        .reset_index()
+    )
+    tabla["tasa_fallo"] = tabla["fallos"] / tabla["apariciones"]
+    tabla = tabla[tabla["fallos"] > 0].sort_values(
+        ["herramienta", "fallos", "tasa_fallo"], ascending=[True, False, False]
+    )
+    return tabla.groupby("herramienta").head(limite)
+
+
 def tipos_de_error(errores):
     """Cantidad de sustituciones, eliminaciones e inserciones por herramienta."""
     return errores.groupby(["herramienta", "tipo"]).size().unstack(fill_value=0)
 
 
-def calcular_todo(detalle, errores):
+def calcular_todo(detalle, errores, reservadas=None):
     """Arma todas las tablas del analisis en un diccionario {nombre: tabla}."""
+    # Las corridas antiguas pueden no tener todas las metricas
     tablas = {
-        f"descriptivas_{metrica}": descriptivas(detalle, metrica) for metrica in METRICAS
+        f"descriptivas_{metrica}": descriptivas(detalle, metrica)
+        for metrica in METRICAS
+        if metrica in detalle
     }
     tablas["tiempo_por_muestra"] = descriptivas(detalle, "segundos")
 
@@ -64,6 +85,14 @@ def calcular_todo(detalle, errores):
         tabla = comparacion_por_factor(detalle, factor)
         if tabla is not None:
             tablas[f"cer_por_{factor}"] = tabla.reset_index()
+
+    if "acierto_reservadas" in detalle:
+        tabla = comparacion_por_factor(detalle, "lenguaje", "acierto_reservadas")
+        if tabla is not None:
+            tablas["reservadas_por_lenguaje"] = tabla.reset_index()
+
+    if reservadas is not None and not reservadas.empty:
+        tablas["reservadas_mas_falladas"] = reservadas_mas_falladas(reservadas)
 
     if not errores.empty:
         tablas["distribucion_errores"] = distribucion_errores(errores).reset_index()

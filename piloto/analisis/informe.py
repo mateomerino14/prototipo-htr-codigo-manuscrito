@@ -23,6 +23,7 @@ def generar_informe(corrida):
     carpeta_tablas = corrida / "tablas"
     detalle = _leer_csv(carpeta_tablas / "resultados_por_muestra.csv")
     errores = _leer_csv(carpeta_tablas / "errores.csv")
+    reservadas = _leer_csv(carpeta_tablas / "reservadas.csv")
 
     if detalle.empty:
         print("La corrida no tiene resultados para analizar.")
@@ -33,7 +34,10 @@ def generar_informe(corrida):
         if columna in errores:
             errores[columna] = errores[columna].fillna("").astype(str)
 
-    tablas = calcular_todo(detalle, errores)
+    if "correcta" in reservadas:
+        reservadas["correcta"] = reservadas["correcta"].astype(str).str.lower() == "true"
+
+    tablas = calcular_todo(detalle, errores, reservadas)
 
     carpeta_estadisticas = carpeta_tablas / "estadisticas"
     carpeta_latex = carpeta_tablas / "latex"

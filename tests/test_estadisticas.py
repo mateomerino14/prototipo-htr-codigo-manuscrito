@@ -3,7 +3,7 @@ import pytest
 
 from piloto.analisis.estadisticas import (
     calcular_todo, comparacion_por_factor, confusiones_frecuentes, descriptivas,
-    distribucion_errores,
+    distribucion_errores, reservadas_mas_falladas,
 )
 
 
@@ -53,3 +53,16 @@ def test_calcular_todo(detalle, errores):
     assert "cer_por_lenguaje" in tablas
     assert "cer_por_captura" not in tablas
     assert "confusiones_frecuentes" in tablas
+
+
+def test_reservadas_mas_falladas():
+    reservadas = pd.DataFrame([
+        {"herramienta": "A", "palabra": "while", "correcta": False},
+        {"herramienta": "A", "palabra": "while", "correcta": True},
+        {"herramienta": "A", "palabra": "return", "correcta": False},
+        {"herramienta": "A", "palabra": "return", "correcta": False},
+        {"herramienta": "A", "palabra": "if", "correcta": True},
+    ])
+    tabla = reservadas_mas_falladas(reservadas)
+    assert tabla["palabra"].tolist() == ["return", "while"]
+    assert tabla.iloc[1]["tasa_fallo"] == pytest.approx(0.5)
