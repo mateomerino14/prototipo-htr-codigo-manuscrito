@@ -2,14 +2,40 @@
 
 El alcance de la investigacion es descriptivo, por eso aqui solo se resumen
 los datos (media, mediana, dispersion); no se hacen pruebas de hipotesis.
+El intervalo de confianza de la media indica que tan precisa es esa media
+con la cantidad de muestras disponible.
 """
+
+import numpy as np
+
+REMUESTREOS_BOOTSTRAP = 2000
+SEMILLA = 2026
 
 METRICAS = ["cer", "cer_sin_espacios", "wer", "acierto_reservadas"]
 AGRUPACIONES = ["lenguaje", "categoria", "captura", "escritor"]
 
 
+def intervalo_bootstrap(valores, nivel=0.95):
+    """Intervalo de confianza de la media por bootstrap de percentiles.
+
+    No supone que los datos sigan una distribucion normal, lo que conviene
+    porque el CER suele estar cargado hacia valores bajos. La semilla es fija
+    para que el resultado sea reproducible.
+    """
+    valores = np.asarray(valores, dtype=float)
+    valores = valores[~np.isnan(valores)]
+    if len(valores) < 2:
+        return float("nan"), float("nan")
+
+    generador = np.random.default_rng(SEMILLA)
+    indices = generador.integers(0, len(valores), size=(REMUESTREOS_BOOTSTRAP, len(valores)))
+    medias = valores[indices].mean(axis=1)
+    alfa = (1 - nivel) / 2
+    return float(np.quantile(medias, alfa)), float(np.quantile(medias, 1 - alfa))
+
+
 def descriptivas(detalle, metrica, por=("herramienta",)):
-    """Media, mediana, desviacion estandar, minimo, maximo y n por grupo."""
+    """Media con su IC 95 %, mediana, desviacion estandar, minimo, maximo y n."""
     grupos = detalle.groupby(list(por))[metrica]
     tabla = grupos.agg(
         n="count",
@@ -19,6 +45,9 @@ def descriptivas(detalle, metrica, por=("herramienta",)):
         minimo="min",
         maximo="max",
     )
+    intervalos = grupos.apply(intervalo_bootstrap)
+    tabla["ic95_inf"] = [inferior for inferior, _ in intervalos]
+    tabla["ic95_sup"] = [superior for _, superior in intervalos]
     return tabla.reset_index().sort_values(list(por))
 
 

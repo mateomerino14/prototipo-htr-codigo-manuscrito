@@ -3,7 +3,7 @@ import pytest
 
 from piloto.analisis.estadisticas import (
     calcular_todo, comparacion_por_factor, confusiones_frecuentes, descriptivas,
-    distribucion_errores, reservadas_mas_falladas,
+    distribucion_errores, intervalo_bootstrap, reservadas_mas_falladas,
 )
 
 
@@ -66,3 +66,20 @@ def test_reservadas_mas_falladas():
     tabla = reservadas_mas_falladas(reservadas)
     assert tabla["palabra"].tolist() == ["return", "while"]
     assert tabla.iloc[1]["tasa_fallo"] == pytest.approx(0.5)
+
+
+def test_intervalo_contiene_la_media_y_es_reproducible():
+    valores = [0.10, 0.12, 0.30, 0.05, 0.08, 0.20, 0.15, 0.11]
+    inferior, superior = intervalo_bootstrap(valores)
+    assert inferior < sum(valores) / len(valores) < superior
+    assert intervalo_bootstrap(valores) == (inferior, superior)
+
+
+def test_intervalo_con_un_solo_valor():
+    inferior, superior = intervalo_bootstrap([0.2])
+    assert inferior != inferior and superior != superior  # NaN
+
+
+def test_descriptivas_incluye_intervalo(detalle):
+    tabla = descriptivas(detalle, "cer")
+    assert {"ic95_inf", "ic95_sup"} <= set(tabla.columns)

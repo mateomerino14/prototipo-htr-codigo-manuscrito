@@ -11,7 +11,7 @@ ESCAPES = {
 
 ENCABEZADOS = {
     "herramienta": "Herramienta", "n": "n", "media": "Media", "mediana": "Mediana",
-    "desv_est": "Desv. est.", "minimo": "Mín.", "maximo": "Máx.",
+    "desv_est": "Desv. est.", "minimo": "Mín.", "maximo": "Máx.", "ic95": "IC 95 %",
     "esperado": "Esperado", "obtenido": "Obtenido", "veces": "Veces",
     "sustitucion": "Sustitución", "eliminacion": "Eliminación", "insercion": "Inserción",
     "palabra": "Palabra", "apariciones": "Apariciones", "fallos": "Fallos", "tasa_fallo": "Tasa de fallo",
@@ -82,11 +82,23 @@ def tabla_a_latex(tabla, titulo, nota="Elaboración propia."):
     return "\n".join(lineas) + "\n"
 
 
+def _unir_intervalo(tabla):
+    """En el documento el IC ocupa una sola columna: [inferior; superior]."""
+    if not {"ic95_inf", "ic95_sup"} <= set(tabla.columns):
+        return tabla
+    tabla = tabla.copy()
+    posicion = list(tabla.columns).index("media") + 1
+    intervalo = [f"[{i:.3f}; {s:.3f}]" for i, s in zip(tabla["ic95_inf"], tabla["ic95_sup"])]
+    tabla = tabla.drop(columns=["ic95_inf", "ic95_sup"])
+    tabla.insert(posicion, "ic95", intervalo)
+    return tabla
+
+
 def exportar_todas(tablas, carpeta):
     for nombre, titulo in TABLAS.items():
         if nombre not in tablas:
             continue
-        tabla = tablas[nombre]
+        tabla = _unir_intervalo(tablas[nombre])
         if nombre in ("confusiones_frecuentes", "reservadas_mas_falladas"):
             tabla = tabla.groupby("herramienta").head(5)
         (carpeta / f"{nombre}.tex").write_text(tabla_a_latex(tabla, titulo), encoding="utf-8")
