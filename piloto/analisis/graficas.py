@@ -173,13 +173,15 @@ def mapa_calor(tabla, titulo, nombre, carpeta, formato="{:.2f}", etiqueta_barra=
     alto = 0.5 * len(tabla.index) + 1.6
     ancho = max(6.5, 0.75 * len(tabla.columns) + 2.5)
 
+    # La escala parte de 0 para que el tono mas claro signifique "sin error"
+    maximo = np.nanmax(valores) if np.isfinite(np.nanmax(valores)) else 1.0
     figura, eje = plt.subplots(figsize=(ancho, alto))
-    imagen = eje.imshow(valores, cmap=mapa, aspect="auto")
+    imagen = eje.imshow(valores, cmap=mapa, aspect="auto", vmin=0, vmax=maximo)
     eje.set_xticks(range(len(tabla.columns)), [_etiqueta(c) for c in tabla.columns], rotation=30, ha="right")
     eje.set_yticks(range(len(tabla.index)), tabla.index)
     eje.grid(False)
 
-    umbral = np.nanmax(valores) * 0.55 if np.isfinite(np.nanmax(valores)) else 0
+    umbral = maximo * 0.55
     for (fila, columna), valor in np.ndenumerate(valores):
         if not np.isnan(valor):
             color = SUPERFICIE if valor > umbral else TEXTO
