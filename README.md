@@ -21,10 +21,12 @@ prototipo-htr-codigo-manuscrito/
 │   ├── motores/             Un conector por herramienta HTR
 │   ├── metricas.py          CER, CER sin espacios y WER
 │   ├── errores.py           Alineación y clasificación de errores por carácter
+│   ├── lenguajes.py         Palabras reservadas de Java y Python
 │   └── segmentacion.py      Separación de la imagen en líneas
 ├── piloto/                  Prueba piloto (objetivo 2)
 │   ├── __main__.py          Ejecución
 │   ├── muestras.py          Carga de muestras y metadatos
+│   ├── hojas.py             PDF con los ejercicios para copiar a mano
 │   └── analisis/            Estadísticas, gráficas y tablas LaTeX
 ├── resultados/              Una carpeta por corrida (no se sube)
 ├── docs/
@@ -52,6 +54,15 @@ Tesseract necesita además el programa instalado:
 - **Linux:** `sudo apt install tesseract-ocr`.
 
 ## Muestras
+
+Las hojas con los ejercicios que copian los escritores se generan con:
+
+```bash
+python -m piloto.hojas        # resultados/hojas/ejercicios_para_copiar.pdf
+```
+
+La primera página trae las instrucciones y una hoja de control para marcar
+qué capturas ya se hicieron.
 
 La forma de recolectar, anonimizar y nombrar las muestras está en
 [`docs/protocolo_muestras.md`](docs/protocolo_muestras.md). En resumen:
@@ -86,6 +97,7 @@ tablas/
 ├── resultados_por_muestra.csv   Métricas de cada muestra con cada herramienta
 ├── resumen_herramientas.csv     Promedios por herramienta
 ├── errores.csv                  Cada error de carácter: tipo, clase, esperado y obtenido
+├── reservadas.csv               Cada palabra reservada: lo obtenido y si es correcta
 ├── estadisticas/                Media, mediana, desviación, comparaciones por factor
 └── latex/                       Tablas listas para \input{} en el documento
 graficas/                        PNG (300 dpi) y PDF de cada gráfica
@@ -98,8 +110,27 @@ graficas/                        PNG (300 dpi) y PDF de cada gráfica
 | CER | Proporción de caracteres mal reconocidos, incluyendo espacios e indentación |
 | CER sin espacios | Solo caracteres visibles. Si es bajo y el CER alto, el error está en la indentación |
 | WER | Proporción de palabras mal reconocidas |
+| Acierto en reservadas | Proporción de palabras reservadas (`for`, `while`, `public`...) reconocidas exactamente igual. 1 = todas |
 
-Todas van de 0 (transcripción perfecta) hacia arriba.
+CER y WER van de 0 (transcripción perfecta) hacia arriba y **pueden superar
+1**: si una herramienta inventa texto que no está en la imagen (por ejemplo,
+al leer sombras o el borde de la hoja), cada carácter inventado cuenta como
+inserción. Por eso las tablas reportan también la mediana, que no se deja
+arrastrar por esos casos, y el diagrama de caja los muestra como puntos aislados.
+
+Las palabras reservadas se miden aparte porque en código no todos los
+errores pesan igual: perder un `return` cambia el programa. Las funciones
+predefinidas (`print`, `input`, `int` en Python) no son palabras reservadas,
+así que un ejercicio como P01 no aporta a esta métrica.
+
+### Estadísticas
+
+Para cada métrica y herramienta: n, media con su intervalo de confianza al
+95 % (bootstrap de percentiles, 2000 remuestreos, semilla fija), mediana,
+desviación estándar, mínimo y máximo. El intervalo indica qué tan precisa es
+la media con la cantidad de muestras disponible; se eligió bootstrap porque
+no supone que los datos sean normales. Coherente con el alcance descriptivo
+del proyecto, no se hacen pruebas de hipótesis.
 
 ### Análisis de errores
 
@@ -118,6 +149,8 @@ comillas, espacio, indentación o salto de línea.
 | `cer_por_categoria` | Mapa de calor herramienta × categoría de ejercicio |
 | `distribucion_errores` | Porcentaje de errores por clase de carácter |
 | `confusiones_<herramienta>` | Sustituciones más frecuentes |
+| `reservadas_por_lenguaje` | Acierto en palabras reservadas por herramienta y lenguaje |
+| `reservadas_falladas_<herramienta>` | Palabras reservadas mal reconocidas con más frecuencia |
 | `tiempo_por_herramienta` | Tiempo promedio por muestra |
 
 Cada herramienta mantiene el mismo color y trama en todas las gráficas, de

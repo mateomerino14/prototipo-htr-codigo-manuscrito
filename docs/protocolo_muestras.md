@@ -20,8 +20,8 @@ en que se tomaron las imágenes.
 
 ## 3. Escritura (conjunto piloto)
 
-- Cada escritor copia los ejercicios de `ejercicios/` en hojas blancas o
-  cuadriculadas, con bolígrafo azul o negro, tal como lo haría en un examen.
+- Cada escritor recibe impresas las hojas de `python -m piloto.hojas` y copia
+  los ejercicios en hojas blancas o cuadriculadas, con bolígrafo azul o negro, tal como lo haría en un examen.
 - Un ejercicio por hoja o por recuadro, respetando la indentación del original.
 - Si el escritor se equivoca, no corrige encima: tacha y sigue, como en un
   examen real. La referencia sigue siendo el código original.
