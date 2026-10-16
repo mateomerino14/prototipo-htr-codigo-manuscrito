@@ -13,14 +13,24 @@ import argparse
 import json
 import platform
 import time
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from piloto import config, reporte
 from nucleo.errores import analizar
-from piloto.analisis.informe import generar_informe
+from nucleo.lenguajes import acierto_reservadas, detalle_reservadas
 from nucleo.metricas import cer, cer_sin_espacios, wer
 from nucleo.motores import MOTORES
+from piloto.analisis.informe import generar_informe
 from piloto.muestras import cargar_muestras
+
+
+@dataclass
+class ResultadoMotor:
+    filas: list = field(default_factory=list)
+    errores: list = field(default_factory=list)
+    reservadas: list = field(default_factory=list)
+    fallidas: int = 0
 
 
 def leer_argumentos():
@@ -41,13 +51,11 @@ def preparar_corrida(conjunto):
 def evaluar_motor(motor, muestras, carpeta_transcripciones):
     """Transcribe todas las muestras con un motor y calcula sus metricas.
 
-    Devuelve las metricas por muestra, el detalle de cada error de caracter y
-    la cantidad de muestras que fallaron.
+    Ademas de las metricas por muestra, guarda el detalle de cada error de
+    caracter y de cada palabra reservada, que son la base del analisis.
     """
     carpeta_transcripciones.mkdir(parents=True, exist_ok=True)
-    filas = []
-    detalle_errores = []
-    fallidas = 0
+    resultado = ResultadoMotor()
 
     for muestra in muestras:
         inicio = time.perf_counter()
@@ -56,28 +64,28 @@ def evaluar_motor(motor, muestras, carpeta_transcripciones):
         except Exception as error:
             # Un fallo en una imagen no debe detener el resto del piloto
             print(f"    error en {muestra.imagen.name}: {error}")
-            fallidas += 1
+            resultado.fallidas += 1
             continue
         segundos = time.perf_counter() - inicio
 
         (carpeta_transcripciones / f"{muestra.id}.txt").write_text(texto, encoding="utf-8")
-        filas.append({
+        resultado.filas.append({
             "herramienta": motor.nombre,
             **muestra.metadatos(),
             "cer": cer(muestra.referencia, texto),
             "cer_sin_espacios": cer_sin_espacios(muestra.referencia, texto),
             "wer": wer(muestra.referencia, texto),
+            "acierto_reservadas": acierto_reservadas(muestra.referencia, texto, muestra.lenguaje),
             "segundos": segundos,
         })
-        for error_caracter in analizar(muestra.referencia, texto):
-            detalle_errores.append({
-                "herramienta": motor.nombre,
-                "muestra": muestra.id,
-                "lenguaje": muestra.lenguaje,
-                **error_caracter,
-            })
 
-    return filas, detalle_errores, fallidas
+        identificacion = {"herramienta": motor.nombre, "muestra": muestra.id, "lenguaje": muestra.lenguaje}
+        for error_caracter in analizar(muestra.referencia, texto):
+            resultado.errores.append({**identificacion, **error_caracter})
+        for palabra in detalle_reservadas(muestra.referencia, texto, muestra.lenguaje):
+            resultado.reservadas.append({**identificacion, **palabra})
+
+    return resultado
 
 
 def guardar_registro(carpeta, args, muestras, resumen):
@@ -111,8 +119,7 @@ def main():
         return
 
     corrida = preparar_corrida(args.conjunto)
-    detalle = []
-    errores = []
+    total = ResultadoMotor()
     resumen = []
 
     for clave in args.motores:
@@ -124,14 +131,17 @@ def main():
             continue
 
         print(f"[{motor.nombre}] procesando {len(muestras)} muestras...")
-        filas, errores_motor, fallidas = evaluar_motor(motor, muestras, corrida / "transcripciones" / clave)
-        detalle.extend(filas)
-        errores.extend(errores_motor)
-        resumen.append(reporte.resumir(motor.nombre, filas, fallidas))
+        resultado = evaluar_motor(motor, muestras, corrida / "transcripciones" / clave)
+        total.filas.extend(resultado.filas)
+        total.errores.extend(resultado.errores)
+        total.reservadas.extend(resultado.reservadas)
+        resumen.append(reporte.resumir(motor.nombre, resultado.filas, resultado.fallidas))
 
-    reporte.guardar_csv(corrida / "tablas" / "resultados_por_muestra.csv", detalle)
-    reporte.guardar_csv(corrida / "tablas" / "resumen_herramientas.csv", resumen)
-    reporte.guardar_csv(corrida / "tablas" / "errores.csv", errores)
+    carpeta_tablas = corrida / "tablas"
+    reporte.guardar_csv(carpeta_tablas / "resultados_por_muestra.csv", total.filas)
+    reporte.guardar_csv(carpeta_tablas / "resumen_herramientas.csv", resumen)
+    reporte.guardar_csv(carpeta_tablas / "errores.csv", total.errores)
+    reporte.guardar_csv(carpeta_tablas / "reservadas.csv", total.reservadas)
     guardar_registro(corrida, args, muestras, resumen)
     reporte.imprimir_tabla(resumen)
     generar_informe(corrida)

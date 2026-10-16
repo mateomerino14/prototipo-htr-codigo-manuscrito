@@ -8,7 +8,9 @@ def resumir(nombre, filas, fallidas):
     cantidad = len(filas)
 
     def promedio(clave):
-        return sum(fila[clave] for fila in filas) / cantidad if cantidad else float("nan")
+        # Se ignoran las muestras donde la metrica no aplica (por ejemplo, sin reservadas)
+        valores = [fila[clave] for fila in filas if fila.get(clave) is not None]
+        return sum(valores) / len(valores) if valores else float("nan")
 
     return {
         "herramienta": nombre,
@@ -17,6 +19,7 @@ def resumir(nombre, filas, fallidas):
         "cer": promedio("cer"),
         "cer_sin_espacios": promedio("cer_sin_espacios"),
         "wer": promedio("wer"),
+        "acierto_reservadas": promedio("acierto_reservadas"),
         "segundos": promedio("segundos"),
     }
 
@@ -41,13 +44,13 @@ def guardar_csv(ruta, filas):
 
 
 def imprimir_tabla(resumen):
-    print(f"\n{'Herramienta':<22}{'CER':>8}{'CER s/esp':>11}{'WER':>8}{'Seg/img':>9}  Estado")
-    print("-" * 75)
+    print(f"\n{'Herramienta':<22}{'CER':>8}{'CER s/esp':>11}{'WER':>8}{'Reserv.':>9}{'Seg/img':>9}  Estado")
+    print("-" * 84)
     for fila in resumen:
         if "cer" in fila:
             print(
                 f"{fila['herramienta']:<22}{fila['cer']:>8.3f}{fila['cer_sin_espacios']:>11.3f}"
-                f"{fila['wer']:>8.3f}{fila['segundos']:>9.2f}  {fila['estado']}"
+                f"{fila['wer']:>8.3f}{fila['acierto_reservadas']:>9.3f}{fila['segundos']:>9.2f}  {fila['estado']}"
             )
         else:
-            print(f"{fila['herramienta']:<22}{'-':>8}{'-':>11}{'-':>8}{'-':>9}  {fila['estado']}")
+            print(f"{fila['herramienta']:<22}{'-':>8}{'-':>11}{'-':>8}{'-':>9}{'-':>9}  {fila['estado']}")
