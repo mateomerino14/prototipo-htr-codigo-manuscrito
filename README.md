@@ -17,13 +17,15 @@ prototipo-htr-codigo-manuscrito/
 ├── datos/                   Muestras manuscritas (no se suben al repositorio)
 │   ├── piloto/              Objetivo 2: selección de herramientas
 │   └── evaluacion/          Objetivo 6: evaluación del prototipo
-├── piloto/                  Prueba piloto
+├── nucleo/                  Componentes reutilizables por el piloto y el prototipo
+│   ├── motores/             Un conector por herramienta HTR
+│   ├── metricas.py          CER, CER sin espacios y WER
+│   ├── errores.py           Alineación y clasificación de errores por carácter
+│   └── segmentacion.py      Separación de la imagen en líneas
+├── piloto/                  Prueba piloto (objetivo 2)
 │   ├── __main__.py          Ejecución
 │   ├── muestras.py          Carga de muestras y metadatos
-│   ├── metricas.py          CER, CER sin espacios y WER
-│   ├── segmentacion.py      Separación de la imagen en líneas
-│   ├── motores/             Un conector por herramienta HTR
-│   └── analisis/            Errores, estadísticas, gráficas y tablas LaTeX
+│   └── analisis/            Estadísticas, gráficas y tablas LaTeX
 ├── resultados/              Una carpeta por corrida (no se sube)
 ├── docs/
 │   └── protocolo_muestras.md

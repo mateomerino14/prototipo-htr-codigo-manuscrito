@@ -1,4 +1,4 @@
-from piloto.motores.base import agrupar_en_lineas
+from nucleo.motores.base import agrupar_en_lineas
 
 
 def test_agrupa_fragmentos_de_la_misma_linea():

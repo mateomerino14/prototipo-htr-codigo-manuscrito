@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
-from piloto.segmentacion import segmentar_lineas
+from nucleo.segmentacion import segmentar_lineas
 
 
 def _imagen_con_lineas(ruta, lineas):

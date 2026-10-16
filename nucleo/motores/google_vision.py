@@ -1,6 +1,6 @@
 import os
 
-from piloto.motores.base import MotorHTR
+from nucleo.motores.base import MotorHTR
 
 
 class GoogleVision(MotorHTR):

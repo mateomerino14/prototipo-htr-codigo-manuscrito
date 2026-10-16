@@ -1,4 +1,4 @@
-from piloto.motores.base import MotorHTR, agrupar_en_lineas
+from nucleo.motores.base import MotorHTR, agrupar_en_lineas
 
 
 class PaddleOCR(MotorHTR):

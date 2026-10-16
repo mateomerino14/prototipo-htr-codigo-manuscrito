@@ -1,7 +1,7 @@
-from piloto.analisis.errores import (
+from nucleo.errores import (
     ELIMINACION, INSERCION, SUSTITUCION, alinear, analizar, clasificar_caracter,
 )
-from piloto.metricas import levenshtein
+from nucleo.metricas import levenshtein
 
 
 def test_clasifica_caracteres():

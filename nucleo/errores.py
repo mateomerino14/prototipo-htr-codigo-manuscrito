@@ -5,7 +5,7 @@ CER) y clasifica cada diferencia segun el tipo de caracter afectado. Con esto
 se puede responder que se equivoca cada herramienta, no solo cuanto.
 """
 
-from piloto.metricas import normalizar
+from nucleo.metricas import normalizar
 
 CORRECTO = "correcto"
 SUSTITUCION = "sustitucion"

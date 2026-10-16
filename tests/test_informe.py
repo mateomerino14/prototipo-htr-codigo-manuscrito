@@ -5,7 +5,7 @@ import random
 
 import pytest
 
-from piloto.analisis.errores import analizar
+from nucleo.errores import analizar
 from piloto.analisis.informe import generar_informe
 from piloto.muestras import cargar_catalogo
 
@@ -34,7 +34,7 @@ def _escribir(ruta, filas):
 
 @pytest.fixture
 def corrida(tmp_path):
-    from piloto.metricas import cer, cer_sin_espacios, wer
+    from nucleo.metricas import cer, cer_sin_espacios, wer
 
     azar = random.Random(7)
     catalogo = cargar_catalogo()

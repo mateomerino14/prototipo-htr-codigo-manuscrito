@@ -1,5 +1,5 @@
-from piloto.motores.base import MotorHTR
-from piloto.segmentacion import segmentar_lineas
+from nucleo.motores.base import MotorHTR
+from nucleo.segmentacion import segmentar_lineas
 
 
 class TrOCR(MotorHTR):

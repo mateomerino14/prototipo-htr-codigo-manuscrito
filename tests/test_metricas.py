@@ -1,4 +1,4 @@
-from piloto.metricas import cer, cer_sin_espacios, levenshtein, normalizar, wer
+from nucleo.metricas import cer, cer_sin_espacios, levenshtein, normalizar, wer
 
 
 def test_levenshtein_cadenas():

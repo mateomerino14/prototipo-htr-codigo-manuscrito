@@ -7,7 +7,7 @@ class MotorHTR(ABC):
     """Cada herramienta HTR se integra heredando de esta clase.
 
     Las librerias de cada herramienta se importan dentro de sus metodos, asi
-    el piloto funciona aunque alguna no este instalada.
+    el sistema funciona aunque alguna no este instalada.
     """
 
     nombre = "base"

@@ -16,10 +16,10 @@ import time
 from datetime import datetime
 
 from piloto import config, reporte
-from piloto.analisis.errores import analizar
+from nucleo.errores import analizar
 from piloto.analisis.informe import generar_informe
-from piloto.metricas import cer, cer_sin_espacios, wer
-from piloto.motores import MOTORES
+from nucleo.metricas import cer, cer_sin_espacios, wer
+from nucleo.motores import MOTORES
 from piloto.muestras import cargar_muestras
 
 

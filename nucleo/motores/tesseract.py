@@ -1,11 +1,11 @@
 import os
 import shutil
 
-from piloto.motores.base import MotorHTR
+from nucleo.motores.base import MotorHTR
 
 
 class Tesseract(MotorHTR):
-    """Linea base del piloto. Esta pensado para texto impreso, no manuscrito."""
+    """Linea base de comparacion. Esta pensado para texto impreso, no manuscrito."""
 
     nombre = "Tesseract"
     CONFIGURACION = "--psm 6 -c preserve_interword_spaces=1"
